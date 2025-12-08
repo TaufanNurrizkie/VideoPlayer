@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Video Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            width: 100%;
+            height: 100vh;
+            padding: clamp(16px, 3vw, 40px);
+            display: grid;
+            gap: clamp(16px, 3vw, 40px);
+            align-items: center;
+        }
+
+        /* Desktop: 2 columns */
+        @media (min-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+        }
+
+        /* Tablet landscape: 2 columns but tighter */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+        }
+
+        /* Mobile & Tablet portrait: 1 column */
+        @media (max-width: 767px) {
+            .main-container {
+                grid-template-rows: auto 1fr;
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 12px;
+                height: 100svh;
+            }
+        }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2.5vw, 32px);
+            height: 100%;
+            justify-content: center;
+        }
+
+        @media (max-width: 767px) {
+            .left-section {
+                height: auto;
+                gap: 10px;
+                overflow-y: auto;
+            }
+        }
+
+        .hero {
+            text-align: left;
+        }
+
+        .logo {
+            width: clamp(40px, 5vw, 48px);
+            height: clamp(40px, 5vw, 48px);
+            background: linear-gradient(135deg, #5865f2 0%, #7289da 100%);
+            border-radius: clamp(10px, 1.5vw, 12px);
+            margin-bottom: clamp(16px, 2vw, 24px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(20px, 3vw, 24px);
+            box-shadow: 0 8px 32px rgba(88, 101, 242, 0.3);
+        }
+
+        h1 {
+            font-size: clamp(1.8em, 4vw, 3em);
+            font-weight: 700;
+            margin-bottom: clamp(8px, 1vw, 12px);
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-size: clamp(0.9em, 1.5vw, 1.1em);
+            color: #808080;
+            margin-bottom: clamp(12px, 1.5vw, 20px);
+            line-height: 1.5;
+        }
+
+        .privacy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: clamp(6px, 1vw, 8px) clamp(12px, 2vw, 16px);
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: clamp(0.75em, 1.2vw, 0.85em);
+            color: #a0a0a0;
+        }
+
+        .features-compact {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(12px, 2vw, 16px);
+        }
+
+        @media (max-width: 480px) {
+            .features-compact {
+                gap: 8px;
+            }
+        }
+
+        .feature-mini {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: clamp(8px, 1.5vw, 12px);
+            padding: clamp(12px, 2vw, 20px) clamp(8px, 1.5vw, 16px);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-mini:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(88, 101, 242, 0.3);
+            transform: translateY(-4px);
+        }
+
+        @media (hover: none) {
+            .feature-mini:hover {
+                transform: none;
+            }
+        }
+
+        .feature-mini .icon {
+            font-size: clamp(24px, 4vw, 32px);
+            margin-bottom: clamp(4px, 1vw, 8px);
+        }
+
+        .feature-mini .title {
+            font-size: clamp(0.8em, 1.2vw, 0.9em);
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .feature-mini .desc {
+            font-size: clamp(0.65em, 1vw, 0.75em);
+            color: #808080;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+            .feature-mini .desc {
+                display: none;
+            }
+        }
+
+        .right-section {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 2vw, 20px);
+            height: 100%;
+            justify-content: center;
+        }
+
+        @media (max-width: 767px) {
+            .right-section {
+                height: 100%;
+                min-height: 0;
+                overflow-y: auto;
+            }
+        }
+
+        .upload-zone {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: clamp(12px, 2vw, 20px);
+            padding: clamp(40px, 6vw, 60px) clamp(20px, 3vw, 40px);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(88, 101, 242, 0.1) 0%, rgba(114, 137, 218, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-zone:hover::before {
+            opacity: 1;
+        }
+
+        .upload-zone:hover {
+            border-color: rgba(88, 101, 242, 0.5);
+            transform: translateY(-4px);
+        }
+
+        .upload-zone.dragover {
+            border-color: #5865f2;
+            background: rgba(88, 101, 242, 0.1);
+        }
+
+        .upload-icon {
+            font-size: clamp(40px, 6vw, 56px);
+            margin-bottom: clamp(12px, 2vw, 20px);
+            opacity: 0.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-zone h2 {
+            font-size: clamp(1.2em, 2vw, 1.5em);
+            font-weight: 600;
+            margin-bottom: clamp(4px, 1vw, 8px);
+            color: #ffffff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-zone p {
+            color: #808080;
+            font-size: clamp(0.8em, 1.2vw, 0.9em);
+            position: relative;
+            z-index: 1;
+        }
+
+        .video-wrapper {
+            background: #000000;
+            border-radius: clamp(12px, 2vw, 20px);
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-height: 50vh;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .video-wrapper {
+                max-height: 60vh;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .video-wrapper {
+                max-height: calc(100vh - 280px);
+            }
+        }
+
+        video {
+            width: 100%;
+            display: block;
+            max-height: inherit;
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: clamp(12px, 2vw, 16px);
+            padding: clamp(16px, 2.5vw, 24px);
+            backdrop-filter: blur(10px);
+            display: grid;
+            gap: clamp(12px, 2vw, 16px);
+        }
+
+        @media (min-width: 640px) {
+            .controls-panel {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 1vw, 8px);
+        }
+
+        .control-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            color: #ffffff;
+            font-size: clamp(0.75em, 1.2vw, 0.85em);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #5865f2 0%, #7289da 100%);
+            color: white;
+            padding: clamp(10px, 1.5vw, 12px) clamp(16px, 2vw, 20px);
+            border-radius: clamp(8px, 1.2vw, 10px);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: clamp(0.8em, 1.2vw, 0.9em);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-info {
+            color: #808080;
+            font-size: clamp(0.7em, 1vw, 0.8em);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .shortcuts-mini {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: clamp(12px, 2vw, 16px);
+            padding: clamp(16px, 2vw, 20px) clamp(20px, 2.5vw, 24px);
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 1023px) {
+            .shortcuts-mini {
+                display: none;
+            }
+        }
+
+        .shortcuts-title {
+            font-size: clamp(0.85em, 1.2vw, 0.9em);
+            font-weight: 600;
+            margin-bottom: clamp(10px, 1.5vw, 12px);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(6px, 1vw, 8px);
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: clamp(6px, 1vw, 8px) clamp(10px, 1.5vw, 12px);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: clamp(6px, 1vw, 8px);
+            font-size: clamp(0.7em, 1vw, 0.8em);
+        }
+
+        .shortcut-name {
+            color: #a0a0a0;
+        }
+
+        .shortcut-key {
+            background: rgba(255, 255, 255, 0.1);
+            padding: clamp(3px, 0.5vw, 4px) clamp(8px, 1.2vw, 10px);
+            border-radius: clamp(4px, 0.8vw, 6px);
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: #5865f2;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Landscape mobile optimization */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .main-container {
+                grid-template-columns: 1fr 1.2fr;
+                gap: 16px;
+                padding: 12px;
+            }
+
+            .left-section {
+                gap: 8px;
+            }
+
+            .hero {
+                margin-bottom: 0;
+            }
+
+            .logo {
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+                margin-bottom: 8px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 4px;
+            }
+
+            .subtitle {
+                font-size: 0.75em;
+                margin-bottom: 8px;
+            }
+
+            .privacy-badge {
+                font-size: 0.65em;
+                padding: 4px 10px;
+            }
+
+            .features-compact {
+                gap: 6px;
+            }
+
+            .feature-mini {
+                padding: 8px 6px;
+            }
+
+            .feature-mini .icon {
+                font-size: 20px;
+                margin-bottom: 2px;
+            }
+
+            .feature-mini .title {
+                font-size: 0.7em;
+            }
+
+            .feature-mini .desc {
+                display: none;
+            }
+
+            .upload-zone {
+                padding: 20px 16px;
+            }
+
+            .upload-icon {
+                font-size: 32px;
+                margin-bottom: 8px;
+            }
+
+            .upload-zone h2 {
+                font-size: 1em;
+            }
+
+            .upload-zone p {
+                font-size: 0.75em;
+            }
+
+            .controls-panel {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .video-wrapper {
+                max-height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="left-section">
+            <div class="hero">
+                <div class="logo">▶️</div>
+                <h1>Simple Video Player</h1>
+                <p class="subtitle">Main video langsung di browser, tanpa ribet install aplikasi</p>
+                <div class="privacy-badge">
+                    <span>🔒</span>
+                    <span>100% Private - Tidak diupload</span>
+                </div>
+            </div>
+
+            <div class="features-compact">
+                <div class="feature-mini">
+                    <div class="icon">📝</div>
+                    <div class="title">Subtitle</div>
+                    <div class="desc">Support SRT & WebVTT</div>
+                </div>
+                <div class="feature-mini">
+                    <div class="icon">⌨️</div>
+                    <div class="title">Shortcuts</div>
+                    <div class="desc">Keyboard control</div>
+                </div>
+                <div class="feature-mini">
+                    <div class="icon">🔊</div>
+                    <div class="title">Boost</div>
+                    <div class="desc">Volume 400%</div>
+                </div>
+            </div>
+
+            <div class="shortcuts-mini">
+                <div class="shortcuts-title">
+                    <span>⌨️</span>
+                    <span>Keyboard Shortcuts</span>
+                </div>
+                <div class="shortcuts-grid">
+                    <div class="shortcut-item">
+                        <span class="shortcut-name">Play/Pause</span>
+                        <span class="shortcut-key">Space</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-name">Maju</span>
+                        <span class="shortcut-key">→</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-name">Mundur</span>
+                        <span class="shortcut-key">←</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-name">Fullscreen</span>
+                        <span class="shortcut-key">F</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-section">
+            <div class="upload-zone" id="uploadArea">
+                <div class="upload-icon">🎬</div>
+                <h2>Drop Video Di Sini</h2>
+                <p>Atau klik untuk pilih file</p>
+            </div>
+
+            <div class="video-wrapper hidden" id="videoWrapper">
+                <video id="videoPlayer" controls></video>
+            </div>
+
+            <div class="controls-panel">
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>📹</span>
+                        <span>Video File</span>
+                    </div>
+                    <label for="videoInput" class="btn">Pilih Video</label>
+                    <input type="file" id="videoInput" accept="video/*">
+                    <div class="file-info" id="videoFilename"></div>
+                </div>
+
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>📝</span>
+                        <span>Subtitle</span>
+                    </div>
+                    <label for="subtitleInput" class="btn">Pilih Subtitle</label>
+                    <input type="file" id="subtitleInput" accept=".srt,.vtt">
+                    <div class="file-info" id="subtitleFilename"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoInput = document.getElementById('videoInput');
+        const subtitleInput = document.getElementById('subtitleInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const videoWrapper = document.getElementById('videoWrapper');
+        const videoFilename = document.getElementById('videoFilename');
+        const subtitleFilename = document.getElementById('subtitleFilename');
+
+        uploadArea.addEventListener('click', () => {
+            videoInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('video/')) {
+                loadVideo(file);
+            }
+        });
+
+        videoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                loadVideo(file);
+            }
+        });
+
+        subtitleInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                loadSubtitle(file);
+            }
+        });
+
+        function loadVideo(file) {
+            const url = URL.createObjectURL(file);
+            videoPlayer.src = url;
+            videoFilename.innerHTML = `<span>✓</span><span>${file.name}</span>`;
+            uploadArea.classList.add('hidden');
+            videoWrapper.classList.remove('hidden');
+            videoPlayer.play();
+        }
+
+        function loadSubtitle(file) {
+            const existingTracks = videoPlayer.querySelectorAll('track');
+            existingTracks.forEach(track => track.remove());
+
+            const url = URL.createObjectURL(file);
+            const track = document.createElement('track');
+            track.kind = 'subtitles';
+            track.label = 'Subtitle';
+            track.srclang = 'id';
+            track.src = url;
+            track.default = true;
+            videoPlayer.appendChild(track);
+            subtitleFilename.innerHTML = `<span>✓</span><span>${file.name}</span>`;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!videoPlayer.src) return;
+
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    videoPlayer.paused ? videoPlayer.play() : videoPlayer.pause();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    videoPlayer.currentTime += 10;
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    videoPlayer.currentTime -= 10;
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    videoPlayer.volume = Math.min(4, videoPlayer.volume + 0.1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    videoPlayer.volume = Math.max(0, videoPlayer.volume - 0.1);
+                    break;
+                case 'f':
+                case 'F':
+                    e.preventDefault();
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    } else {
+                        videoWrapper.requestFullscreen();
+                    }
+                    break;
+                case 'm':
+                case 'M':
+                    e.preventDefault();
+                    videoPlayer.muted = !videoPlayer.muted;
+                    break;
+            }
+        });
+
+        videoPlayer.volume = 1;
+    </script>
+</body>
+</html>
