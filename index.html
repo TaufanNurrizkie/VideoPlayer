@@ -376,6 +376,95 @@
                         display: none;
                     }
 
+                    /* Video Mode - Full Screen */
+                    body.video-mode {
+                        overflow: hidden;
+                    }
+
+                    .main-container.video-mode {
+                        padding: 0;
+                        gap: 0;
+                        height: 100vh;
+                        width: 100vw;
+                        max-width: 100%;
+                        display: block;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                    }
+
+                    .main-container.video-mode .right-section {
+                        width: 100vw;
+                        height: 100vh;
+                        padding: 0;
+                        gap: 0;
+                    }
+
+                    .main-container.video-mode .video-wrapper {
+                        max-height: none;
+                        width: 100vw;
+                        height: 100vh;
+                        border-radius: 0;
+                        border: none;
+                        box-shadow: none;
+                        display: block;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                    }
+
+                    .main-container.video-mode video {
+                        width: 100vw;
+                        height: 100vh;
+                        max-height: none;
+                        object-fit: cover;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                    }
+
+                    /* Reset Button */
+                    .reset-button {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: rgba(0, 0, 0, 0.7);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        color: #ffffff;
+                        padding: 12px 24px;
+                        border-radius: 50px;
+                        font-size: 0.9em;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        z-index: 10000;
+                        display: none;
+                        align-items: center;
+                        gap: 8px;
+                    }
+
+                    .reset-button:hover {
+                        background: rgba(88, 101, 242, 0.8);
+                        border-color: rgba(88, 101, 242, 0.5);
+                        transform: translateY(-2px);
+                    }
+
+                    body.video-mode .reset-button {
+                        display: flex;
+                    }
+
+                    @media (max-width: 768px) {
+                        .reset-button {
+                            top: 12px;
+                            right: 12px;
+                            padding: 10px 20px;
+                            font-size: 0.85em;
+                        }
+                    }
+
                     @media (max-height: 600px) and (orientation: landscape) {
                         .main-container {
                             grid-template-columns: 1fr 1.2fr;
@@ -473,6 +562,8 @@
 
 <body>
 
+
+
 <div class="main-container">
 
     <div class="left-section">
@@ -539,7 +630,7 @@
             <p>Drop file MP4 / MKV atau klik untuk memilih</p>
         </label>
 
-        <input type="file" id="videoInput" accept="video/*">
+        <input type="file" id="videoInput" accept="video/*" style="display: none;">
 
         <div class="video-wrapper hidden" id="videoWrapper">
             <video id="video" controls></video>
@@ -553,17 +644,24 @@
     const videoInput = document.getElementById("videoInput");
     const uploadZone = document.getElementById("uploadZone");
     const videoWrapper = document.getElementById("videoWrapper");
+    const resetButton = document.getElementById("resetButton");
 
-    function enterFullscreen() {
-        if (video.requestFullscreen) {
-            video.requestFullscreen();
-        } else if (video.webkitRequestFullscreen) {
-            video.webkitRequestFullscreen();
-        } else if (video.mozRequestFullScreen) {
-            video.mozRequestFullScreen();
-        } else if (video.msRequestFullscreen) {
-            video.msRequestFullscreen();
-        }
+    function resetToHome() {
+        // Stop video dan hapus source
+        video.pause();
+        video.src = "";
+        
+        // Hapus video mode
+        document.body.classList.remove('video-mode');
+        document.querySelector('.main-container').classList.remove('video-mode');
+        
+        // Tampilkan kembali UI awal
+        document.querySelector('.left-section').classList.remove('hidden');
+        uploadZone.classList.remove("hidden");
+        videoWrapper.classList.add("hidden");
+        
+        // Reset input file
+        videoInput.value = "";
     }
 
     function loadVideo(file) {
@@ -572,16 +670,17 @@
         const url = URL.createObjectURL(file);
         video.src = url;
 
+        // Sembunyikan semua bagian kecuali video
+        document.querySelector('.left-section').classList.add('hidden');
         uploadZone.classList.add("hidden");
         videoWrapper.classList.remove("hidden");
 
+        // Jadikan video memenuhi layar
+        document.body.classList.add('video-mode');
+        document.querySelector('.main-container').classList.add('video-mode');
+
         video.classList.remove("hide-controls");
         video.setAttribute("controls", true);
-
-        // Tunggu video siap diputar, lalu langsung fullscreen (tanpa auto play)
-        video.addEventListener('loadedmetadata', function() {
-            enterFullscreen();
-        }, { once: true });
     }
 
     videoInput.addEventListener("change", function () {
@@ -605,6 +704,8 @@
         const file = e.dataTransfer.files[0];
         loadVideo(file);
     });
+
+    resetButton.addEventListener("click", resetToHome);
 
     video.addEventListener("play", () => {
         video.removeAttribute("controls");
