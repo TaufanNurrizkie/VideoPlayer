@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Video Player</title>
 
-    <!-- CSS BARU YANG LO KASIH -->
     <style>
                     * {
                         margin: 0;
@@ -284,7 +283,6 @@
                         max-height: inherit;
                     }
 
-                    /* Hide controls when playing */
                     video.hide-controls::-webkit-media-controls-panel {
                         display: none !important;
                         opacity: 0 !important;
@@ -315,90 +313,9 @@
                         display: none !important;
                     }
 
-                    /* Show controls when show-controls class is added */
                     video.show-controls::-webkit-media-controls-panel {
                         display: flex !important;
                         opacity: 1 !important;
-                    }
-
-                    .controls-panel {
-                        background: rgba(255, 255, 255, 0.03);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
-                        border-radius: clamp(12px, 2vw, 16px);
-                        padding: clamp(16px, 2.5vw, 24px);
-                        backdrop-filter: blur(10px);
-                        display: grid;
-                        gap: clamp(12px, 2vw, 16px);
-                    }
-
-                    @media (min-width: 640px) {
-                        .controls-panel {
-                            grid-template-columns: 1fr 1fr;
-                        }
-                    }
-
-                    .control-item {
-                        display: flex;
-                        flex-direction: column;
-                        gap: clamp(6px, 1vw, 8px);
-                    }
-
-                    .control-label {
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-                        font-weight: 500;
-                        color: #ffffff;
-                        font-size: clamp(0.75em, 1.2vw, 0.85em);
-                    }
-
-                    .btn {
-                        background: linear-gradient(135deg, #5865f2 0%, #7289da 100%);
-                        color: white;
-                        padding: clamp(10px, 1.5vw, 12px) clamp(16px, 2vw, 20px);
-                        border-radius: clamp(8px, 1.2vw, 10px);
-                        border: none;
-                        cursor: pointer;
-                        font-weight: 600;
-                        font-size: clamp(0.8em, 1.2vw, 0.9em);
-                        transition: all 0.3s ease;
-                        position: relative;
-                        overflow: hidden;
-                        text-align: center;
-                    }
-
-                    .btn::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: -100%;
-                        width: 100%;
-                        height: 100%;
-                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-                        transition: left 0.5s ease;
-                    }
-
-                    .btn:hover::before {
-                        left: 100%;
-                    }
-
-                    .btn:active {
-                        transform: scale(0.98);
-                    }
-
-                    input[type="file"] {
-                        display: none;
-                    }
-
-                    .file-info {
-                        color: #808080;
-                        font-size: clamp(0.7em, 1vw, 0.8em);
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
                     }
 
                     .shortcuts-mini {
@@ -534,52 +451,23 @@
                             font-size: 0.75em;
                         }
 
-                        .controls-panel {
-                            padding: 12px;
-                            gap: 10px;
-                        }
-
                         .video-wrapper {
                             max-height: 50vh;
                         }
                     }
-      /* CSS untuk sembunyikan controls native di non-fullscreen */
-      video.hide-controls::-webkit-media-controls-panel,
-      video.hide-controls::-webkit-media-controls-enclosure {
-          display: none !important;
-          opacity: 0 !important;
-      }
 
-      /* Optional: jika perlu, sembunyikan juga fullscreen-menu, dll */
-      video.hide-controls::-webkit-media-controls-fullscreen-button,
-      video.hide-controls::-webkit-media-controls-play-button,
-      video.hide-controls::-webkit-media-controls-timeline {
-          display: none !important;
-          opacity: 0 !important;
-      }
+                    video.hide-controls::-webkit-media-controls-panel,
+                    video.hide-controls::-webkit-media-controls-enclosure {
+                        display: none !important;
+                        opacity: 0 !important;
+                    }
 
-      .controls-panel-custom {
-    background: rgba(255,255,255,0.05);
-    padding: 14px;
-    border-radius: 12px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.controls-panel-custom.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .3s ease;
-}
-
-.controls-panel-custom.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-
+                    video.hide-controls::-webkit-media-controls-fullscreen-button,
+                    video.hide-controls::-webkit-media-controls-play-button,
+                    video.hide-controls::-webkit-media-controls-timeline {
+                        display: none !important;
+                        opacity: 0 !important;
+                    }
     </style>
 </head>
 
@@ -587,9 +475,6 @@
 
 <div class="main-container">
 
-    <!-- ===========================
-          LEFT SECTION
-    ============================ -->
     <div class="left-section">
         <div class="hero">
             <div class="logo">▶</div>
@@ -604,7 +489,6 @@
             </div>
         </div>
 
-        <!-- MINI FEATURES -->
         <div class="features-compact">
             <div class="feature-mini">
                 <div class="icon">⚡</div>
@@ -625,7 +509,6 @@
             </div>
         </div>
 
-        <!-- SHORTCUTS only desktop -->
         <div class="shortcuts-mini">
             <div class="shortcuts-title">⌨️ Keyboard Shortcut</div>
 
@@ -648,12 +531,8 @@
         </div>
     </div>
 
-    <!-- ===========================
-          RIGHT SECTION
-    ============================ -->
     <div class="right-section">
 
-        <!-- ZONA UPLOAD -->
         <label for="videoInput" class="upload-zone" id="uploadZone">
             <div class="upload-icon">📁</div>
             <h2>Pilih Video</h2>
@@ -662,7 +541,6 @@
 
         <input type="file" id="videoInput" accept="video/*">
 
-        <!-- VIDEO WRAPPER -->
         <div class="video-wrapper hidden" id="videoWrapper">
             <video id="video" controls></video>
         </div>
@@ -670,17 +548,25 @@
     </div>
 </div>
 
-<!-- ===========================
-      JAVASCRIPT (tidak diubah)
-=========================== -->
 <script>
     const video = document.getElementById("video");
     const videoInput = document.getElementById("videoInput");
     const uploadZone = document.getElementById("uploadZone");
     const videoWrapper = document.getElementById("videoWrapper");
 
-    videoInput.addEventListener("change", function () {
-        const file = this.files[0];
+    function enterFullscreen() {
+        if (video.requestFullscreen) {
+            video.requestFullscreen();
+        } else if (video.webkitRequestFullscreen) {
+            video.webkitRequestFullscreen();
+        } else if (video.mozRequestFullScreen) {
+            video.mozRequestFullScreen();
+        } else if (video.msRequestFullscreen) {
+            video.msRequestFullscreen();
+        }
+    }
+
+    function loadVideo(file) {
         if (!file) return;
 
         const url = URL.createObjectURL(file);
@@ -691,6 +577,16 @@
 
         video.classList.remove("hide-controls");
         video.setAttribute("controls", true);
+
+        // Tunggu video siap diputar, lalu langsung fullscreen (tanpa auto play)
+        video.addEventListener('loadedmetadata', function() {
+            enterFullscreen();
+        }, { once: true });
+    }
+
+    videoInput.addEventListener("change", function () {
+        const file = this.files[0];
+        loadVideo(file);
     });
 
     uploadZone.addEventListener("dragover", (e) => {
@@ -707,16 +603,7 @@
         uploadZone.classList.remove("dragover");
 
         const file = e.dataTransfer.files[0];
-        if (!file) return;
-
-        const url = URL.createObjectURL(file);
-        video.src = url;
-
-        uploadZone.classList.add("hidden");
-        videoWrapper.classList.remove("hidden");
-
-        video.classList.remove("hide-controls");
-        video.setAttribute("controls", true);
+        loadVideo(file);
     });
 
     video.addEventListener("play", () => {
